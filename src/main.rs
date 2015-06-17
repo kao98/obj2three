@@ -96,7 +96,7 @@ extern crate argparse;
 use std::str::FromStr;
 use std::fmt;
 
-use argparse::{ArgumentParser, Store};
+use argparse::{ArgumentParser, StoreTrue, Store};
 
 enum Alignment {
 	Center,
@@ -132,22 +132,111 @@ impl fmt::Display for Alignment {
 	}
 }
 
+enum Smoothing {
+	Smooth,
+	Flat
+}
+
+impl FromStr for Smoothing {
+	type Err = ();
+	fn from_str(src: &str) -> Result<Smoothing, ()> {
+		return match src {
+			"smooth" => Ok(Smoothing::Smooth),
+			"flat" => Ok(Smoothing::Flat),
+			_ => Err(())
+		}
+	}
+}
+
+impl fmt::Display for Smoothing {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			&Smoothing::Smooth => write!(f, "smooth"),
+			&Smoothing::Flat => write!(f, "flat")
+		}
+	}
+}
+
+enum OutputFormat {
+	Ascii,
+	Binary
+}
+
+impl FromStr for OutputFormat {
+	type Err = ();
+	fn from_str(src: &str) -> Result<OutputFormat, ()> {
+		return match src {
+			"ascii" => Ok(OutputFormat::Ascii),
+			"binary" => Ok(OutputFormat::Binary),
+			_ => Err(())
+		}
+	}
+}
+
+impl fmt::Display for OutputFormat {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			&OutputFormat::Ascii => write!(f, "ascii"),
+			&OutputFormat::Binary => write!(f, "binary")
+		}
+	}
+}
+
+//I know, a boolean would be more convinient.
+//This is actually to keep the exact same usage as the original python script.
+enum InvertTransparency {
+	Invert,
+	Normal
+}
+
+impl FromStr for InvertTransparency {
+	type Err = ();
+	fn from_str(src: &str) -> Result<InvertTransparency, ()> {
+		return match src {
+			"invert" => Ok(InvertTransparency::Invert),
+			"normal" => Ok(InvertTransparency::Normal),
+			_ => Err(())
+		}
+	}
+}
+
+impl fmt::Display for InvertTransparency {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			&InvertTransparency::Invert => write!(f, "invert"),
+			&InvertTransparency::Normal => write!(f, "normal")
+		}
+	}
+}
+
 struct Options {
-	input: 			String,
-	output: 		String,
-	morph_files: 	String,
-	morph_colors: 	String,
-	alignment: 		Alignment
+	input: 					String,
+	output: 				String,
+	morph_files: 			String,
+	morph_colors: 			String,
+	alignment: 				Alignment,
+	smoothing:				Smoothing,
+	output_format:			OutputFormat,
+	invert_transparency: 	InvertTransparency,
+	bake_material:			bool,
+	scale:					f32,
+	morph:					i32
 }
 
 fn main() {
 
 	let mut options = Options {
-		input: 			"".to_string(),
-		output: 		"".to_string(),
-		morph_files: 	"".to_string(),
-		morph_colors: 	"".to_string(),
-		alignment: 		Alignment::None
+		input: 					"".to_string(),
+		output: 				"".to_string(),
+		morph_files: 			"".to_string(),
+		morph_colors: 			"".to_string(),
+		alignment: 				Alignment::None,
+		smoothing:				Smoothing::Smooth,
+		output_format:			OutputFormat::Ascii,
+		invert_transparency: 	InvertTransparency::Normal,
+		bake_material:			false,
+		scale:					0.0,
+		morph:					1
 	};
 	
 	{ // this block limits scope of borrows by ap.refer() method
@@ -206,7 +295,61 @@ fn main() {
 				"center|centerxz|top|bottom|none model alignment"
 			)
 		;
-				
+		
+		ap
+			.refer(&mut options.smoothing)
+			.add_option(
+				&["-s"],
+				Store,
+				"smooth|flat smooth = export vertex normals, flat = no normals (face normals computed in loader) - Default will be smooth."
+			)
+		;
+		
+		ap
+			.refer(&mut options.output_format)
+			.add_option(
+				&["-t"],
+				Store,
+				"ascii|binary export ascii or binary format (ascii has more features, binary just supports vertices, faces, normals, uvs and materials) - Default will be ascii."
+			)
+		;
+		
+		ap
+			.refer(&mut options.invert_transparency)
+			.add_option(
+				&["-d"],
+				Store,
+				"invert|normal invert transparency - Default, the transparency will be non-inverted."
+			)
+		;
+		
+		ap
+			.refer(&mut options.bake_material)
+			.add_option(
+				&["-b"],
+				StoreTrue,
+				"bake material colors into face colors"
+			)
+		;
+		
+		ap
+			.refer(&mut options.scale)
+			.add_option(
+				&["-x"],
+				Store,
+				"scale and truncate - Default, no scale and truncate (1.0)"
+			)
+		;
+		
+		ap
+			.refer(&mut options.morph)
+			.add_option(
+				&["-f"],
+				Store,
+				"morph frame sampling step - Default 1 (all files will be processed)"
+			)
+		;
+		
 		ap.parse_args_or_exit();
 	}
 	
@@ -215,4 +358,11 @@ fn main() {
 	println!("{}", options.morph_files);
 	println!("{}", options.morph_colors);
 	println!("{}", options.alignment);
+	println!("{}", options.smoothing);
+	println!("{}", options.output_format);
+	println!("{}", options.invert_transparency);
+	println!("{}", options.bake_material);
+	println!("{}", options.scale);
+	println!("{}", options.morph);
+	
 }
