@@ -1,0 +1,7 @@
+[package]
+name = "obj2three"
+version = "0.0.1"
+authors = ["Kao ..98 <kao98@kaonet-fr.net>"]
+
+[dependencies]
+argparse = "0.2.0"
