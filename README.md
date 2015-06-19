@@ -4,9 +4,12 @@ Convert Wavefront OBJ / MTL files into Three.js
 (JSON model version, to be used with ascii / binary loader).
 
 _This is actually a port from [the python converter delivered with three.js](https://github.com/mrdoob/three.js/blob/master/utils/converters/obj/convert_obj_three.py)._
-_This is just for discovering the rust programing language._
 
 _This is actually *not working* as it is WIP. Wait for a release, or use the python script!_
+
+## Why?
+
+To learn Rust
 
 ## How to use this converter
 
