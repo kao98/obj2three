@@ -98,6 +98,8 @@ use std::fmt;
 
 use argparse::{ArgumentParser, StoreTrue, Store};
 
+mod bounding_box;
+
 enum Alignment {
 	Center,
 	Centerxz,
