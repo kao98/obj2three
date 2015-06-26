@@ -98,7 +98,7 @@ use std::fmt;
 
 use argparse::{ArgumentParser, StoreTrue, Store};
 
-mod bounding_box;
+mod converter;
 
 enum Alignment {
 	Center,
