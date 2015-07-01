@@ -143,6 +143,56 @@ pub fn translate(vertices: &mut [Vertex], translation_vector: &[f64; 3]) {
 	
 }
 
+/// Alignment option for the align function
+pub enum align_option {
+	/// Align the model on the center of the bounding box
+	center,
+	/// Align the top of the model with the floor of the bounding box
+	top,
+	/// Align the bottom of the model with the floor of the bounding box
+	bottom,
+	/// Center the model on the x and z axis
+	xz
+}
+
+/// This function align the model on the given direction
+/// 
+/// # Examples
+///
+/// ```
+/// let mut vertices = [
+/// 	Vertex { x: 0.0,  y: 0.0, z: 0.0 },
+/// 	Vertex { x: 2.0,  y: 2.0, z: 2.0 },
+/// 	Vertex { x: 4.0,  y: 4.0, z: 4.0 },
+/// ];
+/// 
+/// let translated_vertices = [
+/// 	Vertex { x: -2.0,  y: -4.0, z: -2.0 },
+/// 	Vertex { x:  0.0,  y: -2.0, z:  0.0 },
+/// 	Vertex { x:  2.0,  y:  0.0, z:  2.0 },
+/// ];
+/// 
+/// align_top(&mut vertices);
+/// 
+/// assert!(vertices == translated_vertices);
+/// ```
+pub fn align(vertices: &mut [Vertex], direction: align_option) {
+	
+	let bounding_box = calculate_bounding_box(vertices);
+	
+	let cx = bounding_box.min.x + (bounding_box.max.x - bounding_box.min.x) / 2.0;
+	let cz = bounding_box.min.z + (bounding_box.max.z - bounding_box.min.z) / 2.0;
+	
+	let cy = match direction {
+		align_option::center 	=> bounding_box.min.y + (bounding_box.max.y - bounding_box.min.y) / 2.0,
+		align_option::top 		=> bounding_box.max.y,
+		align_option::bottom 	=> bounding_box.min.y,
+		align_option::xz 		=> 0.0
+	};
+	
+	translate(vertices, &[-cx, -cy, -cz]);
+}
+
 /// This function center the given vertices on the middle of the bounding box
 /// 
 /// # Examples
@@ -166,13 +216,8 @@ pub fn translate(vertices: &mut [Vertex], translation_vector: &[f64; 3]) {
 /// ```
 pub fn center(vertices: &mut [Vertex]) {
 	
-	let bounding_box = calculate_bounding_box(vertices);
+	align(vertices, align_option::center);
 	
-	let cx = bounding_box.min.x + (bounding_box.max.x - bounding_box.min.x) / 2.0;
-	let cy = bounding_box.min.y + (bounding_box.max.y - bounding_box.min.y) / 2.0;
-	let cz = bounding_box.min.z + (bounding_box.max.z - bounding_box.min.z) / 2.0;
-	
-	translate(vertices, &[-cx, -cy, -cz]);
 }
 
 /// This function align the top of the model with the floor (y-axis) of the bounding box
@@ -199,13 +244,8 @@ pub fn center(vertices: &mut [Vertex]) {
 /// ```
 pub fn align_top(vertices: &mut [Vertex]) {
 	
-	let bounding_box = calculate_bounding_box(vertices);
+	align(vertices, align_option::top);
 	
-	let cx = bounding_box.min.x + (bounding_box.max.x - bounding_box.min.x) / 2.0;
-	let cy = bounding_box.max.y;
-	let cz = bounding_box.min.z + (bounding_box.max.z - bounding_box.min.z) / 2.0;
-	
-	translate(vertices, &[-cx, -cy, -cz]);
 }
 
 /// This function align the bottom of the model with the floor (y-axis) of the bounding box
@@ -232,13 +272,8 @@ pub fn align_top(vertices: &mut [Vertex]) {
 /// ```
 pub fn align_bottom(vertices: &mut [Vertex]) {
 	
-	let bounding_box = calculate_bounding_box(vertices);
+	align(vertices, align_option::bottom);
 	
-	let cx = bounding_box.min.x + (bounding_box.max.x - bounding_box.min.x) / 2.0;
-	let cy = bounding_box.min.y;
-	let cz = bounding_box.min.z + (bounding_box.max.z - bounding_box.min.z) / 2.0;
-	
-	translate(vertices, &[-cx, -cy, -cz]);
 }
 
 /// This function center the model around x and z
@@ -264,13 +299,8 @@ pub fn align_bottom(vertices: &mut [Vertex]) {
 /// ```
 pub fn center_xz(vertices: &mut [Vertex]) {
 	
-	let bounding_box = calculate_bounding_box(vertices);
+	align(vertices, align_option::xz);
 	
-	let cx = bounding_box.min.x + (bounding_box.max.x - bounding_box.min.x) / 2.0;
-	let cy = 0.0;
-	let cz = bounding_box.min.z + (bounding_box.max.z - bounding_box.min.z) / 2.0;
-	
-	translate(vertices, &[-cx, -cy, -cz]);
 }
 
 /// The test module of the converter
