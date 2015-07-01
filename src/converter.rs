@@ -9,9 +9,9 @@
 /// A structure to manipulate one vertex composed of its `x`, `y` and `z` components.
 #[derive(PartialEq, Copy, Clone)]
 pub struct Vertex {
-	pub x: f32,
-	pub y: f32,
-	pub z: f32
+	pub x: f64,
+	pub y: f64,
+	pub z: f64
 }
 
 /// A structure that represent a box, composed of two vertices `min` and `max`.
@@ -26,7 +26,7 @@ pub struct Box {
 
 /// A function to compare floating point numbers using a tolerance value.
 #[allow(dead_code)]
-pub fn fuzzy_cmp(a: f32, b: f32, tolerance: f32) -> bool {
+pub fn fuzzy_cmp(a: f64, b: f64, tolerance: f64) -> bool {
 	a >= b - tolerance && a <= b + tolerance
 }
 
@@ -133,7 +133,7 @@ pub fn calculate_bounding_box(vertices: &[Vertex]) -> Box {
 /// 	);
 /// }
 /// ```
-pub fn translate(vertices: &mut [Vertex], translation_vector: &[f32; 3]) {
+pub fn translate(vertices: &mut [Vertex], translation_vector: &[f64; 3]) {
 
 	for vertex in vertices {
 		vertex.x += translation_vector[0];
