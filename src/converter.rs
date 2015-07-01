@@ -172,7 +172,7 @@ pub enum align_option {
 /// 	Vertex { x:  2.0,  y:  0.0, z:  2.0 },
 /// ];
 /// 
-/// align_top(&mut vertices);
+/// align(&mut vertices, align_option::top);
 /// 
 /// assert!(vertices == translated_vertices);
 /// ```
