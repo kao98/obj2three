@@ -24,6 +24,12 @@ pub struct Box {
 	pub max: Vertex
 }
 
+/// A function to compare floating point numbers using a tolerance value.
+#[allow(dead_code)]
+pub fn fuzzy_cmp(a: f32, b: f32, tolerance: f32) -> bool {
+	a >= b - tolerance && a <= b + tolerance
+}
+
 /// This function calculate the bounding box of the
 /// given vertices array.
 ///
@@ -98,7 +104,34 @@ pub fn calculate_bounding_box(vertices: &[Vertex]) -> Box {
 /// # Examples
 ///
 /// ```
+/// use converter::{fuzzy_cmp, translate};
 /// 
+/// let mut vertices = [
+/// 	Vertex { x: 0.0,  y: 0.0, z: 0.0 },
+/// 	Vertex { x: -1.1, y: 1.1, z: 1.1 },
+/// 	Vertex { x: 2.2,  y: 0.0, z: 1.1 },
+/// 	Vertex { x: 1.1,  y: 0.0, z: 2.2 }
+/// ];
+/// 
+/// let translated_vertices = [
+/// 	Vertex { x: 1.0,  y: -2.0, z: 3.3 },
+/// 	Vertex { x: -0.1, y: -0.9, z: 4.4 },
+/// 	Vertex { x: 3.2,  y: -2.0, z: 4.4 },
+/// 	Vertex { x: 2.1,  y: -2.0, z: 5.5 }
+/// ];
+/// 
+/// let translation_vector = [1.0, -2.0, 3.3];
+/// 
+/// translate(&mut vertices, &translation_vector);
+/// 
+/// for it in vertices.iter_mut().zip(translated_vertices.iter()) {
+/// 	let (vertex, translated_vertex) = it;
+/// 	assert!(
+/// 		fuzzy_cmp(vertex.x, translated_vertex.x, 0.01) &&
+/// 		fuzzy_cmp(vertex.y, translated_vertex.y, 0.01) &&
+/// 		fuzzy_cmp(vertex.z, translated_vertex.z, 0.01)
+/// 	);
+/// }
 /// ```
 pub fn translate(vertices: &mut [Vertex], translation_vector: &[f32; 3]) {
 
@@ -110,15 +143,43 @@ pub fn translate(vertices: &mut [Vertex], translation_vector: &[f32; 3]) {
 	
 }
 
+/// This function center the given vertices on the middle of the bounding box
+/// 
+/// # Examples
+///
+/// ```
+/// let mut vertices = [
+/// 	Vertex { x: 0.0,  y: 0.0, z: 0.0 },
+/// 	Vertex { x: 2.0,  y: 2.0, z: 2.0 },
+/// 	Vertex { x: 4.0,  y: 4.0, z: 4.0 },
+/// ];
+/// 
+/// let translated_vertices = [
+/// 	Vertex { x: -2.0,  y: -2.0, z: -2.0 },
+/// 	Vertex { x:  0.0,  y:  0.0, z:  0.0 },
+/// 	Vertex { x:  2.0,  y:  2.0, z:  2.0 },
+/// ];
+/// 
+/// center(&mut vertices);
+/// 
+/// assert!(vertices == translated_vertices);
+/// ```
+pub fn center(vertices: &mut [Vertex]) {
+	
+	let bounding_box = calculate_bounding_box(vertices);
+	
+	let cx = bounding_box.min.x + (bounding_box.max.x - bounding_box.min.x) / 2.0;
+	let cy = bounding_box.min.y + (bounding_box.max.y - bounding_box.min.y) / 2.0;
+	let cz = bounding_box.min.z + (bounding_box.max.z - bounding_box.min.z) / 2.0;
+	
+	translate(vertices, &[-cx, -cy, -cz]);
+}
+
 /// The test module of the converter
 #[cfg(test)]
 mod tests {
 
 	use super::*;
-	
-	fn fuzzy_cmp(a: f32, b: f32, tolerance: f32) -> bool {
-		a >= b - tolerance && a <= b + tolerance
-	}
 
 	#[test]
 	fn test_calculate_bounding_box() {
@@ -173,6 +234,27 @@ mod tests {
 				fuzzy_cmp(vertex.z, translated_vertex.z, 0.01)
 			);
 		}
+	}
+	
+	#[test]
+	fn test_center() {
+	
+		let mut vertices = [
+			Vertex { x: 0.0,  y: 0.0, z: 0.0 },
+			Vertex { x: 2.0,  y: 2.0, z: 2.0 },
+			Vertex { x: 4.0,  y: 4.0, z: 4.0 },
+		];
+	
+		let translated_vertices = [
+			Vertex { x: -2.0,  y: -2.0, z: -2.0 },
+			Vertex { x:  0.0,  y:  0.0, z:  0.0 },
+			Vertex { x:  2.0,  y:  2.0, z:  2.0 },
+		];
+		
+		center(&mut vertices);
+		
+		assert!(vertices == translated_vertices);
+		
 	}
 	
 }
