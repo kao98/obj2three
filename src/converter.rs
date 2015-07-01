@@ -241,6 +241,38 @@ pub fn align_bottom(vertices: &mut [Vertex]) {
 	translate(vertices, &[-cx, -cy, -cz]);
 }
 
+/// This function center the model around x and z
+/// 
+/// # Examples
+///
+/// ```
+/// let mut vertices = [
+/// 	Vertex { x: 0.0,  y: -2.0, z: 0.0 },
+/// 	Vertex { x: 2.0,  y:  2.0, z: 2.0 },
+/// 	Vertex { x: 4.0,  y:  4.0, z: 4.0 },
+/// ];
+/// 
+/// let translated_vertices = [
+/// 	Vertex { x: -2.0,  y:  -2.0, z: -2.0 },
+/// 	Vertex { x:  0.0,  y:   2.0, z:  0.0 },
+/// 	Vertex { x:  2.0,  y:   4.0, z:  2.0 },
+/// ];
+/// 
+/// center_xz(&mut vertices);
+/// 
+/// assert!(vertices == translated_vertices);
+/// ```
+pub fn center_xz(vertices: &mut [Vertex]) {
+	
+	let bounding_box = calculate_bounding_box(vertices);
+	
+	let cx = bounding_box.min.x + (bounding_box.max.x - bounding_box.min.x) / 2.0;
+	let cy = 0.0;
+	let cz = bounding_box.min.z + (bounding_box.max.z - bounding_box.min.z) / 2.0;
+	
+	translate(vertices, &[-cx, -cy, -cz]);
+}
+
 /// The test module of the converter
 #[cfg(test)]
 mod tests {
@@ -360,6 +392,27 @@ mod tests {
 		];
 		
 		align_bottom(&mut vertices);
+		
+		assert!(vertices == translated_vertices);
+		
+	}
+	
+	#[test]
+	fn test_center_xz() {
+	
+		let mut vertices = [
+			Vertex { x: 0.0,  y: -2.0, z: 0.0 },
+			Vertex { x: 2.0,  y:  2.0, z: 2.0 },
+			Vertex { x: 4.0,  y:  4.0, z: 4.0 },
+		];
+	
+		let translated_vertices = [
+			Vertex { x: -2.0,  y: -2.0, z: -2.0 },
+			Vertex { x:  0.0,  y:  2.0, z:  0.0 },
+			Vertex { x:  2.0,  y:  4.0, z:  2.0 },
+		];
+		
+		center_xz(&mut vertices);
 		
 		assert!(vertices == translated_vertices);
 		
