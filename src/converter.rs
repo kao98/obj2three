@@ -303,6 +303,36 @@ pub fn center_xz(vertices: &mut [Vertex]) {
 	
 }
 
+/// This function normalize the given vertex
+/// 
+/// # Examples
+/// 
+/// ```
+/// use converter::{fuzzy_comp, normalize};
+/// 
+/// let mut v = Vertex { x: 1.0, y: 1.0, z: 1.0 };
+/// 
+/// let vn = Vertex { x: 0.57735, y: 0.57735, z: 0.57735 };
+/// 
+/// normalize(&mut v1);
+/// assert!(
+/// 	fuzzy_cmp(v1.x, v1n.x, 0.000001) &&
+/// 	fuzzy_cmp(v1.y, v1n.y, 0.000001) &&
+/// 	fuzzy_cmp(v1.z, v1n.z, 0.000001)
+/// );
+/// ```
+pub fn normalize(vertex: &mut Vertex) {
+	
+	let lenght = (vertex.x.powi(2) + vertex.y.powi(2) + vertex.z.powi(2)).sqrt();
+	
+	if lenght.is_normal() {
+		vertex.x /= lenght;
+		vertex.y /= lenght;
+		vertex.z /= lenght;
+	}
+	 
+}
+
 /// The test module of the converter
 #[cfg(test)]
 mod tests {
@@ -445,6 +475,48 @@ mod tests {
 		center_xz(&mut vertices);
 		
 		assert!(vertices == translated_vertices);
+		
+	}
+	
+	#[test]
+	fn test_normalize() {
+		
+		let mut v1 = Vertex { x: 1.0, y: 1.0, z: 1.0 };
+		let mut v2 = Vertex { x: 0.0, y: 0.0, z: 0.0 };
+		let mut v3 = Vertex { x: 2.0, y: 2.0, z: 3.0 };
+		let mut v4 = Vertex { x: -2.0, y: 2.0, z: -3.0 };
+		
+		let v1n = Vertex { x: 0.57735, y: 0.57735, z: 0.57735 };
+		let v2n = Vertex { x: 0.0, y: 0.0, z: 0.0 };
+		let v3n = Vertex { x:  0.485071, y: 0.485071, z:  0.727607 };
+		let v4n = Vertex { x: -0.485071, y: 0.485071, z: -0.727607 };
+		
+		normalize(&mut v1);
+		normalize(&mut v2);
+		normalize(&mut v3);
+		normalize(&mut v4);
+		
+		println!("{} {} {}", v1.x, v1.y, v1.z);
+		println!("{} {} {}", v2.x, v2.y, v2.z);
+		println!("{} {} {}", v3.x, v3.y, v3.z);
+		println!("{} {} {}", v4.x, v4.y, v4.z);		
+		
+		assert!(
+			fuzzy_cmp(v1.x, v1n.x, 0.000001) &&
+			fuzzy_cmp(v1.y, v1n.y, 0.000001) &&
+			fuzzy_cmp(v1.z, v1n.z, 0.000001)
+		);
+		assert!(v2n == v2);
+		assert!(
+			fuzzy_cmp(v3.x, v3n.x, 0.000001) &&
+			fuzzy_cmp(v3.y, v3n.y, 0.000001) &&
+			fuzzy_cmp(v3.z, v3n.z, 0.000001)
+		);
+		assert!(
+			fuzzy_cmp(v4.x, v4n.x, 0.000001) &&
+			fuzzy_cmp(v4.y, v4n.y, 0.000001) &&
+			fuzzy_cmp(v4.z, v4n.z, 0.000001)
+		);
 		
 	}
 }
