@@ -175,6 +175,72 @@ pub fn center(vertices: &mut [Vertex]) {
 	translate(vertices, &[-cx, -cy, -cz]);
 }
 
+/// This function align the top of the model with the floor (y-axis) of the bounding box
+/// and center it around x and z
+/// 
+/// # Examples
+///
+/// ```
+/// let mut vertices = [
+/// 	Vertex { x: 0.0,  y: 0.0, z: 0.0 },
+/// 	Vertex { x: 2.0,  y: 2.0, z: 2.0 },
+/// 	Vertex { x: 4.0,  y: 4.0, z: 4.0 },
+/// ];
+/// 
+/// let translated_vertices = [
+/// 	Vertex { x: -2.0,  y: -4.0, z: -2.0 },
+/// 	Vertex { x:  0.0,  y: -2.0, z:  0.0 },
+/// 	Vertex { x:  2.0,  y:  0.0, z:  2.0 },
+/// ];
+/// 
+/// align_top(&mut vertices);
+/// 
+/// assert!(vertices == translated_vertices);
+/// ```
+pub fn align_top(vertices: &mut [Vertex]) {
+	
+	let bounding_box = calculate_bounding_box(vertices);
+	
+	let cx = bounding_box.min.x + (bounding_box.max.x - bounding_box.min.x) / 2.0;
+	let cy = bounding_box.max.y;
+	let cz = bounding_box.min.z + (bounding_box.max.z - bounding_box.min.z) / 2.0;
+	
+	translate(vertices, &[-cx, -cy, -cz]);
+}
+
+/// This function align the bottom of the model with the floor (y-axis) of the bounding box
+/// and center it around x and z
+/// 
+/// # Examples
+///
+/// ```
+/// let mut vertices = [
+/// 	Vertex { x: 0.0,  y: -2.0, z: 0.0 },
+/// 	Vertex { x: 2.0,  y:  2.0, z: 2.0 },
+/// 	Vertex { x: 4.0,  y:  4.0, z: 4.0 },
+/// ];
+/// 
+/// let translated_vertices = [
+/// 	Vertex { x: -2.0,  y:  0.0, z: -2.0 },
+/// 	Vertex { x:  0.0,  y:  4.0, z:  0.0 },
+/// 	Vertex { x:  2.0,  y:  6.0, z:  2.0 },
+/// ];
+/// 
+/// align_bottom(&mut vertices);
+/// 
+/// assert!(vertices == translated_vertices);
+/// ```
+pub fn align_bottom(vertices: &mut [Vertex]) {
+	
+	let bounding_box = calculate_bounding_box(vertices);
+	
+	let cx = bounding_box.min.x + (bounding_box.max.x - bounding_box.min.x) / 2.0;
+	let cy = bounding_box.min.y;
+	let cz = bounding_box.min.z + (bounding_box.max.z - bounding_box.min.z) / 2.0;
+	
+	translate(vertices, &[-cx, -cy, -cz]);
+}
+
 /// The test module of the converter
 #[cfg(test)]
 mod tests {
@@ -257,4 +323,45 @@ mod tests {
 		
 	}
 	
+	#[test]
+	fn test_align_top() {
+	
+		let mut vertices = [
+			Vertex { x: 0.0,  y: 0.0, z: 0.0 },
+			Vertex { x: 2.0,  y: 2.0, z: 2.0 },
+			Vertex { x: 4.0,  y: 4.0, z: 4.0 },
+		];
+	
+		let translated_vertices = [
+			Vertex { x: -2.0,  y: -4.0, z: -2.0 },
+			Vertex { x:  0.0,  y: -2.0, z:  0.0 },
+			Vertex { x:  2.0,  y:  0.0, z:  2.0 },
+		];
+		
+		align_top(&mut vertices);
+		
+		assert!(vertices == translated_vertices);
+		
+	}
+	
+	#[test]
+	fn test_align_bottom() {
+	
+		let mut vertices = [
+			Vertex { x: 0.0,  y: -2.0, z: 0.0 },
+			Vertex { x: 2.0,  y:  2.0, z: 2.0 },
+			Vertex { x: 4.0,  y:  4.0, z: 4.0 },
+		];
+	
+		let translated_vertices = [
+			Vertex { x: -2.0,  y: 0.0, z: -2.0 },
+			Vertex { x:  0.0,  y: 4.0, z:  0.0 },
+			Vertex { x:  2.0,  y: 6.0, z:  2.0 },
+		];
+		
+		align_bottom(&mut vertices);
+		
+		assert!(vertices == translated_vertices);
+		
+	}
 }
