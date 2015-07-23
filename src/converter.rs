@@ -6,6 +6,31 @@
 //! //
 //! ```
 
+use std::path::PathBuf;
+
+/// A macro to determine the file name in a string representing an absolute path.
+/// 
+/// # Panics
+///
+/// Panics if no file name may be extract from the given path, or if
+/// the resulting file name contains non-unicode characters.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use std::path::PathBuf;
+/// 
+/// assert!(file_name!("/home/user/file.txt") == "file.txt");
+/// assert!(file_name!("c:\\users\\user\\file.txt") == "file.txt");
+/// ```
+macro_rules! file_name {
+	($path:expr) => {{
+		PathBuf::from($path.replace("\\", "/"))	
+			.file_name().unwrap()
+			.to_str().unwrap()
+	}};
+}
+
 /// A structure to manipulate one vertex composed of its `x`, `y` and `z` components.
 #[derive(PartialEq, Copy, Clone)]
 pub struct Vertex {
@@ -25,6 +50,7 @@ pub struct Box {
 }
 
 /// A function to compare floating point numbers using a tolerance value.
+/// This may not be used outside some tests, so we allow dead_code for that one.
 #[allow(dead_code)]
 pub fn fuzzy_cmp(a: f64, b: f64, tolerance: f64) -> bool {
 	a >= b - tolerance && a <= b + tolerance
@@ -338,6 +364,7 @@ pub fn normalize(vertex: &mut Vertex) {
 mod tests {
 
 	use super::*;
+	use std::path::PathBuf;
 
 	#[test]
 	fn test_calculate_bounding_box() {
@@ -518,5 +545,17 @@ mod tests {
 			fuzzy_cmp(v4.z, v4n.z, 0.000001)
 		);
 		
+	}
+	
+	#[test]
+	fn test_file_name_macro() {
+		assert!(file_name!("/home/user/file.txt") == "file.txt");
+		assert!(file_name!("c:\\users\\user\\file.txt") == "file.txt");
+	}
+	
+	#[test]
+	#[should_panic]
+	fn test_file_name_macro_panic() {
+		file_name!("/home/user/..");
 	}
 }
