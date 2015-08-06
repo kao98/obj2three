@@ -7,6 +7,8 @@
 //! ```
 
 use std::path::PathBuf;
+use std::io::{BufReader, BufRead};
+use std::fs::File;
 
 /// A macro to determine the file name in a string representing an absolute path.
 /// 
@@ -357,6 +359,40 @@ pub fn normalize(vertex: &mut Vertex) {
 		vertex.z /= lenght;
 	}
 	 
+}
+
+pub fn parse_mtl(file_name: & str) {
+
+	let file = match File::open(file_name) {
+		Ok(file) => file,
+		Err(e) => panic!("Couldn't open {}", file_name)
+	};
+
+	let file = BufReader::new(&file);
+
+	let mut previous_line	:String = String::new();	
+	let mut line			:String;
+
+	for curent_line in file.lines() {
+	
+		line = format!(
+			"{}{}",
+			previous_line,
+			curent_line.unwrap()
+		);
+		
+		previous_line = String::new();
+		
+		let mut iter = line.rsplitn(2, "\\\\");
+		
+		if iter.next() == Some("") {
+			previous_line = String::from(iter.last().unwrap());
+		} else {
+			println!("{}", line);
+		}
+
+	}
+	
 }
 
 /// The test module of the converter

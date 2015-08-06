@@ -352,6 +352,8 @@ fn main() {
 			)
 		;
 		
+		converter::parse_mtl("./test.txt");
+		
 		ap.parse_args_or_exit();
 	}
 	
