@@ -373,26 +373,75 @@ pub fn parse_mtl(file_name: & str) {
 	let mut previous_line	:String = String::new();	
 	let mut line			:String;
 
-	for curent_line in file.lines() {
+	for current_line in file.lines() {
 	
-		line = format!(
-			"{}{}",
-			previous_line,
-			curent_line.unwrap()
-		);
+		line = match current_line {
+			Ok(current_line) => format!(
+					"{}{}",
+					previous_line,
+					current_line
+				),
+			Err(_) => previous_line
+		};
 		
 		previous_line = String::new();
 		
 		let mut iter = line.rsplitn(2, "\\\\");
 		
 		if iter.next() == Some("") {
-			previous_line = String::from(iter.last().unwrap());
+			previous_line = match iter.last() {
+				Some(line) => String::from(line),
+				None => String::new()
+			};
 		} else {
-			println!("{}", line);
+			let mut chunks = line.splitn(2, ' ');
+			//if chunks.count() > 0 {
+			let first = chunks.next();
+			
+			if first != None {
+				let first = first.unwrap().trim();
+				println!("chunk[0]: {}", first);
+				
+				match first {
+					"newmtl"=> {
+						println!("Let's start a new material!\n");
+					}
+					"map_Kd" => {
+						println!("This is a diffuse map.\n");
+					}
+					_ => println!("Something else:/\n")
+				};
+				
+			}
+
 		}
 
 	}
 	
+}
+
+fn parse_mtl_line(line: & String) {
+	
+	let mut chunks = line.splitn(2, ' ');
+	
+	//if chunks.count() > 0 {
+		let first = chunks.next().unwrap();
+		println!("chunk[0]: {}", first);
+	//}
+	/*
+	let chunk_count = chunks.clone().count();
+	
+	println!("chunk count: {}", chunk_count);
+	
+	for chunk in chunks {
+		let mut chunk = chunk;
+		/*if chunks_count > 1 {
+			chunk = chunk.trim();
+		}*/
+		
+		println!("'{}' ", chunk);
+	}
+	println!("-----\n");*/
 }
 
 /// The test module of the converter
